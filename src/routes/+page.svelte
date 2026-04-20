@@ -17,6 +17,12 @@
 	let daysBefore = $state(500);
 	let daysAfter = $state(500);
 
+	// BTC price state
+	let btcPrice = $state<number | null>(null);
+	let btcPriceError = $state<string | null>(null);
+	let btcPriceUpdated = $state<Date | null>(null);
+	let isPriceLoading = $state(false);
+
 	// Countdown state
 	let now = $state(new Date());
 
@@ -105,6 +111,37 @@
 		}
 	}
 
+	async function fetchBtcPrice() {
+		isPriceLoading = true;
+		btcPriceError = null;
+		try {
+			const res = await fetch(
+				'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
+			);
+			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+			const data = await res.json();
+			btcPrice = data?.bitcoin?.usd ?? null;
+			btcPriceUpdated = new Date();
+		} catch (err) {
+			btcPriceError = err instanceof Error ? err.message : 'Unknown error';
+		} finally {
+			isPriceLoading = false;
+		}
+	}
+
+	// Auto-fetch BTC price on mount, then every 1 minute
+	$effect(() => {
+		fetchBtcPrice();
+		const priceId = setInterval(fetchBtcPrice, 60_000);
+		return () => clearInterval(priceId);
+	});
+
+	// Auto-refresh block height every 10 minutes
+	$effect(() => {
+		const blockId = setInterval(refreshBlockHeight, 600_000);
+		return () => clearInterval(blockId);
+	});
+
 	// ─── Formatters ──────────────────────────────────────────────────────────────
 	function formatDate(d: Date) {
 		return d.toLocaleDateString('en-US', {
@@ -134,6 +171,10 @@
 
 	function formatBlockNumber(n: number) {
 		return n.toLocaleString('en-US');
+	}
+
+	function formatPrice(n: number) {
+		return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 	}
 
 	// Timeline progress (0-100)
@@ -316,12 +357,36 @@
 					</div>
 					{#if lastUpdated}
 						<p class="text-gray-600 text-xs mt-1">
-							Updated {lastUpdated.toLocaleTimeString()}
+							Updated {lastUpdated.toLocaleTimeString()} · auto-refreshes every 10 min
 						</p>
 					{/if}
 					{#if blockError}
 						<p class="text-red-400 text-xs mt-1">⚠ {blockError} — using fallback data</p>
 					{/if}
+
+					<!-- BTC Price -->
+					<div class="mt-4 pt-4 border-t border-gray-800">
+						<p class="text-gray-400 text-xs uppercase tracking-widest mb-1">Bitcoin Price (USD)</p>
+						<div class="flex items-baseline gap-3">
+							{#if isPriceLoading && btcPrice === null}
+								<span class="text-2xl font-black font-mono text-neon-cyan animate-pulse">Loading…</span>
+							{:else if btcPrice !== null}
+								<span class="text-3xl font-black font-mono text-neon-cyan">
+									${formatPrice(btcPrice)}
+								</span>
+							{:else}
+								<span class="text-gray-500 text-sm">—</span>
+							{/if}
+						</div>
+						{#if btcPriceUpdated}
+							<p class="text-gray-600 text-xs mt-1">
+								Updated {btcPriceUpdated.toLocaleTimeString()} · auto-refreshes every 1 min
+							</p>
+						{/if}
+						{#if btcPriceError}
+							<p class="text-red-400 text-xs mt-1">⚠ {btcPriceError}</p>
+						{/if}
+					</div>
 				</div>
 
 				<div class="flex flex-col md:items-end gap-3">

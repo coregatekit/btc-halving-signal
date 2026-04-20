@@ -79,6 +79,7 @@
 	let buyCountdown = $derived(getCountdown(buyDate));
 	let halvingCountdown = $derived(getCountdown(halvingDate));
 	let sellCountdown = $derived(getCountdown(sellDate));
+	let nextCycleCountdown = $derived(getCountdown(nextNextHalvingDate));
 
 	// ─── Clock interval ───────────────────────────────────────────────────────────
 	$effect(() => {
@@ -366,31 +367,139 @@
 			</div>
 		</div>
 
+		<!-- ─── Active Signal Banner ─────────────────────────────────────────── -->
+		{#if buyStatus === 'active'}
+			<div class="glass-card-green signal-active-green rounded-2xl p-8 text-center relative overflow-hidden">
+				<div class="absolute inset-0" style="background: radial-gradient(ellipse at center top, rgba(0,255,136,0.12) 0%, transparent 70%);"></div>
+				<div class="relative z-10">
+					<div class="flex items-center justify-center gap-3 mb-4">
+						<span class="w-3 h-3 rounded-full bg-neon-green animate-pulse"></span>
+						<span class="text-neon-green text-sm uppercase tracking-[0.3em] font-bold">Active Signal</span>
+						<span class="w-3 h-3 rounded-full bg-neon-green animate-pulse"></span>
+					</div>
+					<div
+						class="text-8xl md:text-9xl font-black text-neon-green text-glow-green tracking-tight leading-none mb-3"
+						style="font-family: 'Space Grotesk', sans-serif;"
+					>
+						📉 BUY
+					</div>
+					<p class="text-gray-300 text-base md:text-lg mb-6">
+						Accumulate Bitcoin — <span class="text-neon-green font-semibold">{daysBefore} days</span> before the halving
+					</p>
+					<p class="text-gray-500 text-xs uppercase tracking-widest mb-3">Buy window ends in (halving)</p>
+					<div class="flex justify-center gap-3 flex-wrap">
+						{#each [['Days', halvingCountdown.days], ['Hours', halvingCountdown.hours], ['Mins', halvingCountdown.minutes], ['Secs', halvingCountdown.seconds]] as [label, value]}
+							<div class="countdown-digit-xl border border-neon-green/30">
+								<div class="text-neon-green font-mono font-black text-4xl md:text-5xl leading-none">{pad(value as number)}</div>
+								<div class="text-neon-green/50 text-xs uppercase tracking-widest mt-2">{label}</div>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</div>
+		{:else if halvingStatus === 'active'}
+			<div class="glass-card-orange signal-active-orange rounded-2xl p-8 text-center relative overflow-hidden">
+				<div class="absolute inset-0" style="background: radial-gradient(ellipse at center top, rgba(247,147,26,0.12) 0%, transparent 70%);"></div>
+				<div class="relative z-10">
+					<div class="flex items-center justify-center gap-3 mb-4">
+						<span class="w-3 h-3 rounded-full bg-bitcoin-orange animate-pulse"></span>
+						<span class="text-bitcoin-orange text-sm uppercase tracking-[0.3em] font-bold">Halving Period</span>
+						<span class="w-3 h-3 rounded-full bg-bitcoin-orange animate-pulse"></span>
+					</div>
+					<div
+						class="text-7xl md:text-8xl font-black text-bitcoin-orange text-glow-orange tracking-tight leading-none mb-3"
+						style="font-family: 'Space Grotesk', sans-serif;"
+					>
+						₿ HALVING
+					</div>
+					<p class="text-gray-300 text-base md:text-lg mb-6">
+						{ordinal(halvingNumber)} halving occurred — prepare to <span class="text-neon-pink font-semibold">take profit</span>
+					</p>
+					<p class="text-gray-500 text-xs uppercase tracking-widest mb-3">Sell window opens in</p>
+					<div class="flex justify-center gap-3 flex-wrap">
+						{#each [['Days', sellCountdown.days], ['Hours', sellCountdown.hours], ['Mins', sellCountdown.minutes], ['Secs', sellCountdown.seconds]] as [label, value]}
+							<div class="countdown-digit-xl border border-bitcoin-orange/30">
+								<div class="text-bitcoin-orange font-mono font-black text-4xl md:text-5xl leading-none">{pad(value as number)}</div>
+								<div class="text-bitcoin-orange/50 text-xs uppercase tracking-widest mt-2">{label}</div>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</div>
+		{:else if sellStatus === 'active'}
+			<div class="glass-card-pink signal-active-pink rounded-2xl p-8 text-center relative overflow-hidden">
+				<div class="absolute inset-0" style="background: radial-gradient(ellipse at center top, rgba(255,45,126,0.12) 0%, transparent 70%);"></div>
+				<div class="relative z-10">
+					<div class="flex items-center justify-center gap-3 mb-4">
+						<span class="w-3 h-3 rounded-full bg-neon-pink animate-pulse"></span>
+						<span class="text-neon-pink text-sm uppercase tracking-[0.3em] font-bold">Active Signal</span>
+						<span class="w-3 h-3 rounded-full bg-neon-pink animate-pulse"></span>
+					</div>
+					<div
+						class="text-8xl md:text-9xl font-black text-neon-pink text-glow-pink tracking-tight leading-none mb-3"
+						style="font-family: 'Space Grotesk', sans-serif;"
+					>
+						📈 SELL
+					</div>
+					<p class="text-gray-300 text-base md:text-lg mb-6">
+						Take profit — <span class="text-neon-pink font-semibold">{daysAfter} days</span> after the halving
+					</p>
+					<p class="text-gray-500 text-xs uppercase tracking-widest mb-3">Sell window closes in</p>
+					<div class="flex justify-center gap-3 flex-wrap">
+						{#each [['Days', nextCycleCountdown.days], ['Hours', nextCycleCountdown.hours], ['Mins', nextCycleCountdown.minutes], ['Secs', nextCycleCountdown.seconds]] as [label, value]}
+							<div class="countdown-digit-xl border border-neon-pink/30">
+								<div class="text-neon-pink font-mono font-black text-4xl md:text-5xl leading-none">{pad(value as number)}</div>
+								<div class="text-neon-pink/50 text-xs uppercase tracking-widest mt-2">{label}</div>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</div>
+		{:else}
+			<!-- No active signal — show next upcoming -->
+			<div class="glass-card rounded-2xl p-6 text-center border border-gray-800">
+				<p class="text-gray-500 text-sm uppercase tracking-widest mb-2">Next Signal</p>
+				{#if buyStatus === 'future'}
+					<p class="text-neon-green font-black text-3xl mb-1" style="font-family: 'Space Grotesk', sans-serif;">📉 BUY</p>
+					<p class="text-gray-400 text-sm mb-4">Accumulate window starts <span class="text-white font-semibold">{formatDate(buyDate)}</span></p>
+					<div class="flex justify-center gap-3 flex-wrap">
+						{#each [['Days', buyCountdown.days], ['Hours', buyCountdown.hours], ['Mins', buyCountdown.minutes], ['Secs', buyCountdown.seconds]] as [label, value]}
+							<div class="countdown-digit-xl border border-neon-green/20">
+								<div class="text-neon-green font-mono font-black text-3xl md:text-4xl leading-none">{pad(value as number)}</div>
+								<div class="text-neon-green/40 text-xs uppercase tracking-widest mt-2">{label}</div>
+							</div>
+						{/each}
+					</div>
+				{:else}
+					<p class="text-gray-400 text-sm">All signals for this cycle have passed. Next cycle begins {formatDate(nextNextHalvingDate)}.</p>
+				{/if}
+			</div>
+		{/if}
+
 		<!-- ─── Main Signal Cards ──────────────────────────────────────────── -->
 		<div class="grid md:grid-cols-3 gap-4">
 
 			<!-- BUY Card -->
-			<div class="glass-card-green rounded-2xl p-6 border-glow-green relative overflow-hidden">
-				<div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 blur-3xl"
+			<div class="glass-card-green rounded-2xl p-6 border-glow-green relative overflow-hidden {buyStatus === 'active' ? 'signal-active-green' : ''}">
+				<div class="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10 blur-3xl"
 					style="background: #00ff88; transform: translate(30%, -30%);"></div>
 				<div class="flex items-center justify-between mb-4">
-					<span class="text-xs uppercase tracking-widest text-neon-green/70 font-semibold">
-						Buy Zone
-					</span>
+					<span class="text-xs uppercase tracking-widest text-neon-green/70 font-bold">Buy Zone</span>
 					{#if buyStatus === 'active'}
-						<span class="flex items-center gap-1.5 text-xs text-neon-green bg-neon-green/10 px-2 py-1 rounded-full border border-neon-green/30">
-							<span class="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse"></span>
+						<span class="flex items-center gap-1.5 text-xs text-neon-green bg-neon-green/15 px-3 py-1.5 rounded-full border border-neon-green/40 font-bold">
+							<span class="w-2 h-2 rounded-full bg-neon-green animate-pulse"></span>
 							ACTIVE NOW
 						</span>
 					{:else if buyStatus === 'past'}
 						<span class="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">PASSED</span>
 					{:else}
-						<span class="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">UPCOMING</span>
+						<span class="text-xs text-gray-400 bg-gray-800/80 px-2 py-1 rounded-full border border-gray-700">UPCOMING</span>
 					{/if}
 				</div>
 
-				<div class="text-5xl mb-3 animate-float">📉</div>
-				<h3 class="text-2xl font-black text-neon-green text-glow-green mb-1">ACCUMULATE</h3>
+				<div class="text-5xl mb-2 animate-float">📉</div>
+				<div class="text-4xl font-black text-neon-green text-glow-green mb-0.5" style="font-family: 'Space Grotesk', sans-serif;">BUY</div>
+				<h3 class="text-lg font-bold text-neon-green/70 mb-1">ACCUMULATE</h3>
 				<p class="text-gray-400 text-xs mb-4">{daysBefore} days before halving</p>
 
 				<div class="glass-card rounded-xl p-3 mb-4">
@@ -400,12 +509,14 @@
 
 				{#if !buyCountdown.expired}
 					<div>
-						<p class="text-gray-500 text-xs uppercase tracking-wider mb-2">Countdown</p>
+						<p class="text-gray-500 text-xs uppercase tracking-wider mb-2">
+							{buyStatus === 'active' ? 'Window closes in' : 'Starts in'}
+						</p>
 						<div class="grid grid-cols-4 gap-1">
-							{#each [['D', buyCountdown.days], ['H', buyCountdown.hours], ['M', buyCountdown.minutes], ['S', buyCountdown.seconds]] as [label, value]}
-								<div class="countdown-digit">
-									<div class="text-neon-green text-xl font-mono font-black">{pad(value as number)}</div>
-									<div class="text-gray-600 text-xs">{label}</div>
+							{#each [['D', buyStatus === 'active' ? halvingCountdown.days : buyCountdown.days], ['H', buyStatus === 'active' ? halvingCountdown.hours : buyCountdown.hours], ['M', buyStatus === 'active' ? halvingCountdown.minutes : buyCountdown.minutes], ['S', buyStatus === 'active' ? halvingCountdown.seconds : buyCountdown.seconds]] as [label, value]}
+								<div class="countdown-digit-lg border {buyStatus === 'active' ? 'border-neon-green/40' : 'border-white/10'}">
+									<div class="text-neon-green text-2xl font-mono font-black leading-none">{pad(value as number)}</div>
+									<div class="text-gray-500 text-xs mt-1">{label}</div>
 								</div>
 							{/each}
 						</div>
@@ -418,29 +529,26 @@
 			</div>
 
 			<!-- HALVING Card -->
-			<div class="glass-card-orange rounded-2xl p-6 border-glow-orange relative overflow-hidden">
-				<div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 blur-3xl"
+			<div class="glass-card-orange rounded-2xl p-6 border-glow-orange relative overflow-hidden {halvingStatus === 'active' ? 'signal-active-orange' : ''}">
+				<div class="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10 blur-3xl"
 					style="background: #f7931a; transform: translate(30%, -30%);"></div>
 				<div class="flex items-center justify-between mb-4">
-					<span class="text-xs uppercase tracking-widest text-bitcoin-orange/70 font-semibold">
-						Halving Event
-					</span>
+					<span class="text-xs uppercase tracking-widest text-bitcoin-orange/70 font-bold">Halving Event</span>
 					{#if halvingStatus === 'active'}
-						<span class="flex items-center gap-1.5 text-xs text-bitcoin-orange bg-bitcoin-orange/10 px-2 py-1 rounded-full border border-bitcoin-orange/30">
-							<span class="w-1.5 h-1.5 rounded-full bg-bitcoin-orange animate-pulse"></span>
+						<span class="flex items-center gap-1.5 text-xs text-bitcoin-orange bg-bitcoin-orange/15 px-3 py-1.5 rounded-full border border-bitcoin-orange/40 font-bold">
+							<span class="w-2 h-2 rounded-full bg-bitcoin-orange animate-pulse"></span>
 							ACTIVE NOW
 						</span>
 					{:else if halvingStatus === 'past'}
 						<span class="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">PASSED</span>
 					{:else}
-						<span class="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">UPCOMING</span>
+						<span class="text-xs text-gray-400 bg-gray-800/80 px-2 py-1 rounded-full border border-gray-700">UPCOMING</span>
 					{/if}
 				</div>
 
-				<div class="text-5xl mb-3 animate-float" style="animation-delay: 0.5s;">₿</div>
-				<h3 class="text-2xl font-black text-bitcoin-orange text-glow-orange mb-1">
-					{ordinal(halvingNumber).toUpperCase()} HALVING
-				</h3>
+				<div class="text-5xl mb-2 animate-float" style="animation-delay: 0.5s;">₿</div>
+				<div class="text-4xl font-black text-bitcoin-orange text-glow-orange mb-0.5" style="font-family: 'Space Grotesk', sans-serif;">HALVING</div>
+				<h3 class="text-lg font-bold text-bitcoin-orange/70 mb-1">{ordinal(halvingNumber).toUpperCase()}</h3>
 				<p class="text-gray-400 text-xs mb-4">Block {formatBlockNumber(nextHalvingBlock)}</p>
 
 				<div class="glass-card rounded-xl p-3 mb-4">
@@ -450,12 +558,12 @@
 
 				{#if !halvingCountdown.expired}
 					<div>
-						<p class="text-gray-500 text-xs uppercase tracking-wider mb-2">Countdown</p>
+						<p class="text-gray-500 text-xs uppercase tracking-wider mb-2">Halving in</p>
 						<div class="grid grid-cols-4 gap-1">
 							{#each [['D', halvingCountdown.days], ['H', halvingCountdown.hours], ['M', halvingCountdown.minutes], ['S', halvingCountdown.seconds]] as [label, value]}
-								<div class="countdown-digit">
-									<div class="text-bitcoin-orange text-xl font-mono font-black">{pad(value as number)}</div>
-									<div class="text-gray-600 text-xs">{label}</div>
+								<div class="countdown-digit-lg border border-bitcoin-orange/30">
+									<div class="text-bitcoin-orange text-2xl font-mono font-black leading-none">{pad(value as number)}</div>
+									<div class="text-gray-500 text-xs mt-1">{label}</div>
 								</div>
 							{/each}
 						</div>
@@ -468,27 +576,26 @@
 			</div>
 
 			<!-- SELL Card -->
-			<div class="glass-card-pink rounded-2xl p-6 border-glow-pink relative overflow-hidden">
-				<div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 blur-3xl"
+			<div class="glass-card-pink rounded-2xl p-6 border-glow-pink relative overflow-hidden {sellStatus === 'active' ? 'signal-active-pink' : ''}">
+				<div class="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10 blur-3xl"
 					style="background: #ff2d7e; transform: translate(30%, -30%);"></div>
 				<div class="flex items-center justify-between mb-4">
-					<span class="text-xs uppercase tracking-widest text-neon-pink/70 font-semibold">
-						Sell Zone
-					</span>
+					<span class="text-xs uppercase tracking-widest text-neon-pink/70 font-bold">Sell Zone</span>
 					{#if sellStatus === 'active'}
-						<span class="flex items-center gap-1.5 text-xs text-neon-pink bg-neon-pink/10 px-2 py-1 rounded-full border border-neon-pink/30">
-							<span class="w-1.5 h-1.5 rounded-full bg-neon-pink animate-pulse"></span>
+						<span class="flex items-center gap-1.5 text-xs text-neon-pink bg-neon-pink/15 px-3 py-1.5 rounded-full border border-neon-pink/40 font-bold">
+							<span class="w-2 h-2 rounded-full bg-neon-pink animate-pulse"></span>
 							ACTIVE NOW
 						</span>
 					{:else if sellStatus === 'past'}
 						<span class="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">PASSED</span>
 					{:else}
-						<span class="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">UPCOMING</span>
+						<span class="text-xs text-gray-400 bg-gray-800/80 px-2 py-1 rounded-full border border-gray-700">UPCOMING</span>
 					{/if}
 				</div>
 
-				<div class="text-5xl mb-3 animate-float" style="animation-delay: 1s;">📈</div>
-				<h3 class="text-2xl font-black text-neon-pink text-glow-pink mb-1">TAKE PROFIT</h3>
+				<div class="text-5xl mb-2 animate-float" style="animation-delay: 1s;">📈</div>
+				<div class="text-4xl font-black text-neon-pink text-glow-pink mb-0.5" style="font-family: 'Space Grotesk', sans-serif;">SELL</div>
+				<h3 class="text-lg font-bold text-neon-pink/70 mb-1">TAKE PROFIT</h3>
 				<p class="text-gray-400 text-xs mb-4">{daysAfter} days after halving</p>
 
 				<div class="glass-card rounded-xl p-3 mb-4">
@@ -498,12 +605,24 @@
 
 				{#if !sellCountdown.expired}
 					<div>
-						<p class="text-gray-500 text-xs uppercase tracking-wider mb-2">Countdown</p>
+						<p class="text-gray-500 text-xs uppercase tracking-wider mb-2">Sell window in</p>
 						<div class="grid grid-cols-4 gap-1">
 							{#each [['D', sellCountdown.days], ['H', sellCountdown.hours], ['M', sellCountdown.minutes], ['S', sellCountdown.seconds]] as [label, value]}
-								<div class="countdown-digit">
-									<div class="text-neon-pink text-xl font-mono font-black">{pad(value as number)}</div>
-									<div class="text-gray-600 text-xs">{label}</div>
+								<div class="countdown-digit-lg border border-neon-pink/30">
+									<div class="text-neon-pink text-2xl font-mono font-black leading-none">{pad(value as number)}</div>
+									<div class="text-gray-500 text-xs mt-1">{label}</div>
+								</div>
+							{/each}
+						</div>
+					</div>
+				{:else if sellStatus === 'active'}
+					<div>
+						<p class="text-gray-500 text-xs uppercase tracking-wider mb-2">Window closes in</p>
+						<div class="grid grid-cols-4 gap-1">
+							{#each [['D', nextCycleCountdown.days], ['H', nextCycleCountdown.hours], ['M', nextCycleCountdown.minutes], ['S', nextCycleCountdown.seconds]] as [label, value]}
+								<div class="countdown-digit-lg border border-neon-pink/40">
+									<div class="text-neon-pink text-2xl font-mono font-black leading-none">{pad(value as number)}</div>
+									<div class="text-gray-500 text-xs mt-1">{label}</div>
 								</div>
 							{/each}
 						</div>

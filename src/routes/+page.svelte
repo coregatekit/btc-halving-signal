@@ -9,10 +9,16 @@
 	const MS_PER_MINUTE = 60_000;
 
 	// ─── State ────────────────────────────────────────────────────────────────────
-	let blockHeight = $state<number>(data.blockHeight ?? 840_000);
-	let blockError = $state<string | null>(data.blockError);
+	let blockHeight = $state<number>(840_000);
+	let blockError = $state<string | null>(null);
 	let isLoading = $state(false);
-	let lastUpdated = $state<Date | null>(data.blockHeight ? new Date() : null);
+	let lastUpdated = $state<Date | null>(null);
+
+	$effect(() => {
+		blockHeight = data.blockHeight ?? 840_000;
+		blockError = data.blockError ?? null;
+		lastUpdated = data.blockHeight ? new Date() : null;
+	});
 	let fetchedAt = $state(new Date());
 	let daysBefore = $state(500);
 	let daysAfter = $state(500);

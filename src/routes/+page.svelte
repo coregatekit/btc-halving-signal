@@ -161,28 +161,113 @@
 		'📉 BUY FEAR, SELL GREED',
 		'🦁 BE FEARFUL WHEN OTHERS ARE GREEDY',
 	];
+
+	const tickerItemsAlt = [
+		'🔑 SOVEREIGNTY THROUGH SELF-CUSTODY',
+		'📊 BLOCK HEIGHT MATTERS',
+		'⛓ DECENTRALIZED MONEY',
+		'🛡 PROOF OF WORK',
+		'🌐 PEER-TO-PEER CASH',
+		'💡 21 MILLION HARD CAP',
+		'🔒 CRYPTOGRAPHIC SECURITY',
+		'⚡ LIGHTNING FAST PAYMENTS',
+		'🏦 BE YOUR OWN BANK',
+		'🌟 ORANGE PILL THE WORLD',
+	];
+
+	// ─── Floating particles ───────────────────────────────────────────────────────
+	const particles = [
+		{ left: '4%',  delay: '0s',   duration: '16s', size: '14px', opacity: 0.15 },
+		{ left: '11%', delay: '4s',   duration: '22s', size: '10px', opacity: 0.10 },
+		{ left: '20%', delay: '8s',   duration: '18s', size: '18px', opacity: 0.08 },
+		{ left: '33%', delay: '2s',   duration: '25s', size: '12px', opacity: 0.12 },
+		{ left: '46%', delay: '10s',  duration: '20s', size: '16px', opacity: 0.09 },
+		{ left: '57%', delay: '5s',   duration: '17s', size: '11px', opacity: 0.08 },
+		{ left: '68%', delay: '13s',  duration: '23s', size: '15px', opacity: 0.11 },
+		{ left: '79%', delay: '7s',   duration: '19s', size: '13px', opacity: 0.09 },
+		{ left: '88%', delay: '3s',   duration: '16s', size: '17px', opacity: 0.07 },
+		{ left: '94%', delay: '9s',   duration: '21s', size: '10px', opacity: 0.10 },
+		{ left: '27%', delay: '15s',  duration: '24s', size: '20px', opacity: 0.06 },
+		{ left: '61%', delay: '12s',  duration: '14s', size: '9px',  opacity: 0.12 },
+	] as const;
+
+	// ─── 3-D tilt action ─────────────────────────────────────────────────────────
+	function tilt(node: HTMLElement) {
+		let raf = 0;
+		let rect = node.getBoundingClientRect();
+
+		const onResize = () => { rect = node.getBoundingClientRect(); };
+		const observer = new ResizeObserver(onResize);
+		observer.observe(node);
+		window.addEventListener('scroll', onResize, { passive: true });
+
+		const onMove = (e: MouseEvent) => {
+			cancelAnimationFrame(raf);
+			raf = requestAnimationFrame(() => {
+				const x = ((e.clientX - rect.left) / rect.width  - 0.5) * 10;
+				const y = ((e.clientY - rect.top)  / rect.height - 0.5) * -10;
+				node.style.transform = `perspective(900px) rotateY(${x}deg) rotateX(${y}deg) translateZ(8px)`;
+				node.style.transition = 'transform 0.08s ease';
+			});
+		};
+		const onLeave = () => {
+			cancelAnimationFrame(raf);
+			node.style.transition = 'transform 0.5s cubic-bezier(0.23,1,0.32,1)';
+			node.style.transform = '';
+		};
+		node.addEventListener('mousemove', onMove);
+		node.addEventListener('mouseleave', onLeave);
+		return {
+			destroy() {
+				cancelAnimationFrame(raf);
+				observer.disconnect();
+				window.removeEventListener('scroll', onResize);
+				node.removeEventListener('mousemove', onMove);
+				node.removeEventListener('mouseleave', onLeave);
+			}
+		};
+	}
 </script>
+
+<!-- ─── Scanline / CRT overlays ──────────────────────────────────────── -->
+<div class="scanline-sweep" aria-hidden="true"></div>
+<div class="scanline-overlay" aria-hidden="true"></div>
+<div class="crt-vignette"    aria-hidden="true"></div>
 
 <!-- ─── Background ──────────────────────────────────────────────────────────── -->
 <div class="min-h-screen bg-crypto-dark bg-grid relative overflow-hidden">
-	<!-- Ambient glow blobs -->
+	<!-- Floating ₿ particles -->
+	{#each particles as p}
+		<span
+			class="particle select-none"
+			aria-hidden="true"
+			style="left:{p.left}; font-size:{p.size}; opacity:{p.opacity}; animation-duration:{p.duration}; animation-delay:{p.delay};"
+		>₿</span>
+	{/each}
+
+	<!-- Ambient glow blobs (now drift-animated) -->
 	<div
-		class="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full opacity-5 blur-[100px] pointer-events-none"
+		class="blob-drift-1 absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full opacity-5 blur-[100px] pointer-events-none"
 		style="background: radial-gradient(circle, #f7931a 0%, transparent 70%);"
 	></div>
 	<div
-		class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full opacity-5 blur-[100px] pointer-events-none"
+		class="blob-drift-2 absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full opacity-5 blur-[100px] pointer-events-none"
 		style="background: radial-gradient(circle, #b44fff 0%, transparent 70%);"
 	></div>
 	<div
-		class="absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full opacity-3 blur-[120px] pointer-events-none"
-		style="background: radial-gradient(circle, #00d4ff 0%, transparent 70%);"
+		class="blob-drift-1 absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full opacity-3 blur-[120px] pointer-events-none"
+		style="background: radial-gradient(circle, #00d4ff 0%, transparent 70%); animation-delay: -8s;"
 	></div>
 
 	<!-- ─── Ticker Tape ──────────────────────────────────────────────────────── -->
-	<div class="bg-bitcoin-orange/10 border-y border-bitcoin-orange/30 py-2 overflow-hidden relative">
-		<div class="flex gap-12 ticker-item text-bitcoin-orange text-xs font-semibold tracking-widest uppercase">
+	<div class="border-y border-bitcoin-orange/30 overflow-hidden relative" style="background: rgba(247,147,26,0.06);">
+		<div class="flex gap-12 ticker-item text-bitcoin-orange text-xs font-semibold tracking-widest uppercase py-2">
 			{#each [...tickerItems, ...tickerItems, ...tickerItems] as item}
+				<span class="flex-shrink-0">{item}</span>
+			{/each}
+		</div>
+		<div class="flex gap-12 ticker-item-reverse text-neon-cyan/50 text-xs font-medium tracking-widest uppercase py-2 border-t border-bitcoin-orange/10">
+			{#each [...tickerItemsAlt, ...tickerItemsAlt, ...tickerItemsAlt] as item}
 				<span class="flex-shrink-0">{item}</span>
 			{/each}
 		</div>
@@ -190,9 +275,14 @@
 
 	<!-- ─── Header ──────────────────────────────────────────────────────────── -->
 	<header class="px-4 py-8 text-center relative">
-		<div class="flex items-center justify-center gap-3 mb-4">
-			<div class="w-12 h-12 rounded-full bg-bitcoin-orange flex items-center justify-center shadow-glow-orange animate-pulse-slow">
-				<span class="text-2xl font-black text-white">₿</span>
+		<div class="flex items-center justify-center gap-4 mb-4">
+			<!-- Orbit-ring logo -->
+			<div class="relative w-12 h-12 flex items-center justify-center">
+				<div class="orbit-ring"></div>
+				<div class="orbit-ring-outer"></div>
+				<div class="w-12 h-12 rounded-full bg-bitcoin-orange flex items-center justify-center shadow-glow-orange animate-pulse-slow relative z-10">
+					<span class="text-2xl font-black text-white">₿</span>
+				</div>
 			</div>
 			<h1
 				class="text-4xl md:text-5xl font-black tracking-tight"
@@ -205,12 +295,14 @@
 			Track the optimal <span class="text-neon-green font-semibold">BUY</span> and
 			<span class="text-neon-pink font-semibold">SELL</span> windows around Bitcoin halvings
 		</p>
+		<!-- Neon decorative divider -->
+		<div class="neon-divider mt-6 max-w-2xl mx-auto"></div>
 	</header>
 
 	<main class="max-w-6xl mx-auto px-4 pb-16 space-y-8">
 
 		<!-- ─── Block Height Card ──────────────────────────────────────────── -->
-		<div class="glass-card rounded-2xl p-6 border-glow-orange">
+		<div class="glass-card rounded-2xl p-6 border-glow-orange card-enter-1 card-hover-lift">
 			<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
 				<div>
 					<p class="text-gray-400 text-xs uppercase tracking-widest mb-1">Current Block Height</p>
@@ -276,7 +368,7 @@
 					</span>
 					<span>Block {formatBlockNumber(nextHalvingBlock)}</span>
 				</div>
-				<div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+				<div class="h-2 bg-gray-800 rounded-full overflow-hidden shimmer-bar">
 					<div
 						class="h-full rounded-full transition-all duration-1000"
 						style="width: {((1 - blocksUntilHalving / HALVING_INTERVAL) * 100).toFixed(2)}%;
@@ -287,7 +379,7 @@
 		</div>
 
 		<!-- ─── Parameters ────────────────────────────────────────────────── -->
-		<div class="glass-card rounded-2xl p-6">
+		<div class="glass-card rounded-2xl p-6 card-enter-2 card-hover-lift">
 			<h2 class="text-white font-bold text-lg mb-5 flex items-center gap-2">
 				<span class="text-neon-cyan">⚙</span>
 				Strategy Parameters
@@ -373,7 +465,7 @@
 
 		<!-- ─── Active Signal Banner ─────────────────────────────────────────── -->
 		{#if buyStatus === 'active'}
-			<div class="glass-card-green signal-active-green rounded-2xl p-8 text-center relative overflow-hidden">
+			<div class="glass-card-green signal-active-green rounded-2xl p-8 text-center relative overflow-hidden card-enter-3">
 				<div class="absolute inset-0" style="background: radial-gradient(ellipse at center top, rgba(0,255,136,0.12) 0%, transparent 70%);"></div>
 				<div class="relative z-10">
 					<div class="flex items-center justify-center gap-3 mb-4">
@@ -382,7 +474,7 @@
 						<span class="w-3 h-3 rounded-full bg-neon-green animate-pulse"></span>
 					</div>
 					<div
-						class="text-8xl md:text-9xl font-black text-neon-green text-glow-green tracking-tight leading-none mb-3"
+						class="text-8xl md:text-9xl font-black text-neon-green text-glow-green tracking-tight leading-none mb-3 text-glitch"
 						style="font-family: 'Space Grotesk', sans-serif;"
 					>
 						📉 BUY
@@ -394,7 +486,9 @@
 					<div class="flex justify-center gap-3 flex-wrap">
 						{#each [['Days', halvingCountdown.days], ['Hours', halvingCountdown.hours], ['Mins', halvingCountdown.minutes], ['Secs', halvingCountdown.seconds]] as [label, value]}
 							<div class="countdown-digit-xl border border-neon-green/30">
-								<div class="text-neon-green font-mono font-black text-4xl md:text-5xl leading-none">{pad(value as number)}</div>
+								{#key value}
+									<div class="text-neon-green font-mono font-black text-4xl md:text-5xl leading-none digit-flip">{pad(value as number)}</div>
+								{/key}
 								<div class="text-neon-green/50 text-xs uppercase tracking-widest mt-2">{label}</div>
 							</div>
 						{/each}
@@ -402,7 +496,7 @@
 				</div>
 			</div>
 		{:else if halvingStatus === 'active'}
-			<div class="glass-card-orange signal-active-orange rounded-2xl p-8 text-center relative overflow-hidden">
+			<div class="glass-card-orange signal-active-orange rounded-2xl p-8 text-center relative overflow-hidden card-enter-3">
 				<div class="absolute inset-0" style="background: radial-gradient(ellipse at center top, rgba(247,147,26,0.12) 0%, transparent 70%);"></div>
 				<div class="relative z-10">
 					<div class="flex items-center justify-center gap-3 mb-4">
@@ -411,7 +505,7 @@
 						<span class="w-3 h-3 rounded-full bg-bitcoin-orange animate-pulse"></span>
 					</div>
 					<div
-						class="text-7xl md:text-8xl font-black text-bitcoin-orange text-glow-orange tracking-tight leading-none mb-3"
+						class="text-7xl md:text-8xl font-black text-bitcoin-orange text-glow-orange tracking-tight leading-none mb-3 text-glitch"
 						style="font-family: 'Space Grotesk', sans-serif;"
 					>
 						₿ HALVING
@@ -423,7 +517,9 @@
 					<div class="flex justify-center gap-3 flex-wrap">
 						{#each [['Days', sellCountdown.days], ['Hours', sellCountdown.hours], ['Mins', sellCountdown.minutes], ['Secs', sellCountdown.seconds]] as [label, value]}
 							<div class="countdown-digit-xl border border-bitcoin-orange/30">
-								<div class="text-bitcoin-orange font-mono font-black text-4xl md:text-5xl leading-none">{pad(value as number)}</div>
+								{#key value}
+									<div class="text-bitcoin-orange font-mono font-black text-4xl md:text-5xl leading-none digit-flip">{pad(value as number)}</div>
+								{/key}
 								<div class="text-bitcoin-orange/50 text-xs uppercase tracking-widest mt-2">{label}</div>
 							</div>
 						{/each}
@@ -431,7 +527,7 @@
 				</div>
 			</div>
 		{:else if sellStatus === 'active'}
-			<div class="glass-card-pink signal-active-pink rounded-2xl p-8 text-center relative overflow-hidden">
+			<div class="glass-card-pink signal-active-pink rounded-2xl p-8 text-center relative overflow-hidden card-enter-3">
 				<div class="absolute inset-0" style="background: radial-gradient(ellipse at center top, rgba(255,45,126,0.12) 0%, transparent 70%);"></div>
 				<div class="relative z-10">
 					<div class="flex items-center justify-center gap-3 mb-4">
@@ -440,7 +536,7 @@
 						<span class="w-3 h-3 rounded-full bg-neon-pink animate-pulse"></span>
 					</div>
 					<div
-						class="text-8xl md:text-9xl font-black text-neon-pink text-glow-pink tracking-tight leading-none mb-3"
+						class="text-8xl md:text-9xl font-black text-neon-pink text-glow-pink tracking-tight leading-none mb-3 text-glitch"
 						style="font-family: 'Space Grotesk', sans-serif;"
 					>
 						📈 SELL
@@ -452,7 +548,9 @@
 					<div class="flex justify-center gap-3 flex-wrap">
 						{#each [['Days', nextCycleCountdown.days], ['Hours', nextCycleCountdown.hours], ['Mins', nextCycleCountdown.minutes], ['Secs', nextCycleCountdown.seconds]] as [label, value]}
 							<div class="countdown-digit-xl border border-neon-pink/30">
-								<div class="text-neon-pink font-mono font-black text-4xl md:text-5xl leading-none">{pad(value as number)}</div>
+								{#key value}
+									<div class="text-neon-pink font-mono font-black text-4xl md:text-5xl leading-none digit-flip">{pad(value as number)}</div>
+								{/key}
 								<div class="text-neon-pink/50 text-xs uppercase tracking-widest mt-2">{label}</div>
 							</div>
 						{/each}
@@ -461,7 +559,7 @@
 			</div>
 		{:else}
 			<!-- No active signal — show next upcoming -->
-			<div class="glass-card rounded-2xl p-6 text-center border border-gray-800">
+			<div class="glass-card rounded-2xl p-6 text-center border border-gray-800 card-enter-3">
 				<p class="text-gray-500 text-sm uppercase tracking-widest mb-2">Next Signal</p>
 				{#if buyStatus === 'future'}
 					<p class="text-neon-green font-black text-3xl mb-1" style="font-family: 'Space Grotesk', sans-serif;">📉 BUY</p>
@@ -469,7 +567,9 @@
 					<div class="flex justify-center gap-3 flex-wrap">
 						{#each [['Days', buyCountdown.days], ['Hours', buyCountdown.hours], ['Mins', buyCountdown.minutes], ['Secs', buyCountdown.seconds]] as [label, value]}
 							<div class="countdown-digit-xl border border-neon-green/20">
-								<div class="text-neon-green font-mono font-black text-3xl md:text-4xl leading-none">{pad(value as number)}</div>
+								{#key value}
+									<div class="text-neon-green font-mono font-black text-3xl md:text-4xl leading-none digit-flip">{pad(value as number)}</div>
+								{/key}
 								<div class="text-neon-green/40 text-xs uppercase tracking-widest mt-2">{label}</div>
 							</div>
 						{/each}
@@ -484,7 +584,7 @@
 		<div class="grid md:grid-cols-3 gap-4">
 
 			<!-- BUY Card -->
-			<div class="glass-card-green rounded-2xl p-6 border-glow-green relative overflow-hidden {buyStatus === 'active' ? 'signal-active-green' : ''}">
+			<div use:tilt class="glass-card-green rounded-2xl p-6 border-glow-green relative overflow-hidden card-enter-4 {buyStatus === 'active' ? 'signal-active-green' : ''}">
 				<div class="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10 blur-3xl"
 					style="background: #00ff88; transform: translate(30%, -30%);"></div>
 				<div class="flex items-center justify-between mb-4">
@@ -519,7 +619,9 @@
 						<div class="grid grid-cols-4 gap-1">
 							{#each [['D', buyStatus === 'active' ? halvingCountdown.days : buyCountdown.days], ['H', buyStatus === 'active' ? halvingCountdown.hours : buyCountdown.hours], ['M', buyStatus === 'active' ? halvingCountdown.minutes : buyCountdown.minutes], ['S', buyStatus === 'active' ? halvingCountdown.seconds : buyCountdown.seconds]] as [label, value]}
 								<div class="countdown-digit-lg border {buyStatus === 'active' ? 'border-neon-green/40' : 'border-white/10'}">
-									<div class="text-neon-green text-2xl font-mono font-black leading-none">{pad(value as number)}</div>
+									{#key value}
+										<div class="text-neon-green text-2xl font-mono font-black leading-none digit-flip">{pad(value as number)}</div>
+									{/key}
 									<div class="text-gray-500 text-xs mt-1">{label}</div>
 								</div>
 							{/each}
@@ -533,7 +635,7 @@
 			</div>
 
 			<!-- HALVING Card -->
-			<div class="glass-card-orange rounded-2xl p-6 border-glow-orange relative overflow-hidden {halvingStatus === 'active' ? 'signal-active-orange' : ''}">
+			<div use:tilt class="glass-card-orange rounded-2xl p-6 border-glow-orange relative overflow-hidden card-enter-5 {halvingStatus === 'active' ? 'signal-active-orange' : ''}">
 				<div class="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10 blur-3xl"
 					style="background: #f7931a; transform: translate(30%, -30%);"></div>
 				<div class="flex items-center justify-between mb-4">
@@ -566,7 +668,9 @@
 						<div class="grid grid-cols-4 gap-1">
 							{#each [['D', halvingCountdown.days], ['H', halvingCountdown.hours], ['M', halvingCountdown.minutes], ['S', halvingCountdown.seconds]] as [label, value]}
 								<div class="countdown-digit-lg border border-bitcoin-orange/30">
-									<div class="text-bitcoin-orange text-2xl font-mono font-black leading-none">{pad(value as number)}</div>
+									{#key value}
+										<div class="text-bitcoin-orange text-2xl font-mono font-black leading-none digit-flip">{pad(value as number)}</div>
+									{/key}
 									<div class="text-gray-500 text-xs mt-1">{label}</div>
 								</div>
 							{/each}
@@ -580,7 +684,7 @@
 			</div>
 
 			<!-- SELL Card -->
-			<div class="glass-card-pink rounded-2xl p-6 border-glow-pink relative overflow-hidden {sellStatus === 'active' ? 'signal-active-pink' : ''}">
+			<div use:tilt class="glass-card-pink rounded-2xl p-6 border-glow-pink relative overflow-hidden card-enter-6 {sellStatus === 'active' ? 'signal-active-pink' : ''}">
 				<div class="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10 blur-3xl"
 					style="background: #ff2d7e; transform: translate(30%, -30%);"></div>
 				<div class="flex items-center justify-between mb-4">
@@ -613,7 +717,9 @@
 						<div class="grid grid-cols-4 gap-1">
 							{#each [['D', sellCountdown.days], ['H', sellCountdown.hours], ['M', sellCountdown.minutes], ['S', sellCountdown.seconds]] as [label, value]}
 								<div class="countdown-digit-lg border border-neon-pink/30">
-									<div class="text-neon-pink text-2xl font-mono font-black leading-none">{pad(value as number)}</div>
+									{#key value}
+										<div class="text-neon-pink text-2xl font-mono font-black leading-none digit-flip">{pad(value as number)}</div>
+									{/key}
 									<div class="text-gray-500 text-xs mt-1">{label}</div>
 								</div>
 							{/each}
@@ -625,7 +731,9 @@
 						<div class="grid grid-cols-4 gap-1">
 							{#each [['D', nextCycleCountdown.days], ['H', nextCycleCountdown.hours], ['M', nextCycleCountdown.minutes], ['S', nextCycleCountdown.seconds]] as [label, value]}
 								<div class="countdown-digit-lg border border-neon-pink/40">
-									<div class="text-neon-pink text-2xl font-mono font-black leading-none">{pad(value as number)}</div>
+									{#key value}
+										<div class="text-neon-pink text-2xl font-mono font-black leading-none digit-flip">{pad(value as number)}</div>
+									{/key}
 									<div class="text-gray-500 text-xs mt-1">{label}</div>
 								</div>
 							{/each}
@@ -640,7 +748,7 @@
 		</div>
 
 		<!-- ─── Timeline ──────────────────────────────────────────────────── -->
-		<div class="glass-card rounded-2xl p-6">
+		<div class="glass-card rounded-2xl p-6 card-enter-7">
 			<h2 class="text-white font-bold text-lg mb-6 flex items-center gap-2">
 				<span class="text-neon-purple">⏳</span>
 				Cycle Timeline
@@ -648,7 +756,7 @@
 
 			<!-- Timeline bar -->
 			<div class="relative mb-8">
-				<div class="h-1 bg-gray-800 rounded-full mb-0">
+				<div class="h-1 bg-gray-800 rounded-full mb-0 shimmer-bar">
 					<div
 						class="h-full rounded-full transition-all duration-1000"
 						style="width: {Math.min(100, Math.max(0, timelineProgress))}%;

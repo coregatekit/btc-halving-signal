@@ -1,42 +1,60 @@
-# sv
+# ₿TC Halving Signals
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A real-time Bitcoin halving countdown and Buy/Sell signal tracker built with SvelteKit.
 
-## Creating a project
+## What It Does
 
-If you're seeing this, you've probably already done this step. Congrats!
+This app helps you identify optimal **Buy** and **Sell** windows around Bitcoin halving events by:
+
+- Fetching the **current block height** live from [mempool.space](https://mempool.space)
+- Estimating the **next halving date** based on average 10-minute block times
+- Calculating a **Buy zone** — a configurable number of days *before* the halving to accumulate
+- Calculating a **Sell zone** — a configurable number of days *after* the halving to take profit
+- Displaying a **real-time countdown** (days, hours, minutes, seconds) for each signal
+- Showing a prominent **Active Signal banner** when a Buy or Sell window is currently open
+
+## Features
+
+- 🟢 **BUY Signal** — countdown to the end of the accumulation window (halving)
+- 🟠 **HALVING Event** — countdown to the Bitcoin block reward halving
+- 🔴 **SELL Signal** — countdown to the end of the take-profit window
+- ⚙️ **Adjustable strategy parameters** — set how many days before/after halving via interactive sliders
+- 📊 **Cycle timeline** — visual timeline from buy date through halving to sell date
+- 📜 **Halving history** — past halvings with block numbers, dates, and block rewards
+- 🔮 **Next cycle preview** — estimated buy/sell dates for the following halving cycle
+- ⚡ **Live block data** — refresh block height from [mempool.space](https://mempool.space) at any time
+
+## Tech Stack
+
+- [SvelteKit](https://kit.svelte.dev/) with Svelte 5 runes
+- [Tailwind CSS](https://tailwindcss.com/) for styling
+- [mempool.space API](https://mempool.space/docs/api) for live Bitcoin block height (no API key required)
+- TypeScript throughout
+
+## Getting Started
 
 ```sh
-# create a new project
-npx sv create my-app
-```
+# Install dependencies
+npm install
 
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.15.1 create --template minimal --types ts --install npm .
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
+# Start the development server
 npm run dev
 
-# or start the server and open the app in a new browser tab
+# Open in browser
 npm run dev -- --open
 ```
 
 ## Building
 
-To create a production version of your app:
-
 ```sh
+# Create a production build
 npm run build
+
+# Preview the production build locally
+npm run preview
 ```
 
-You can preview the production build with `npm run preview`.
+## Notes
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+> Halving dates are **estimates** based on an average 10-minute block time. Actual dates may differ.  
+> This is **not financial advice** — always do your own research (DYOR).

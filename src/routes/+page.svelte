@@ -13,6 +13,7 @@
 	let blockError = $state<string | null>(data.blockError);
 	let isLoading = $state(false);
 	let lastUpdated = $state<Date | null>(data.blockHeight ? new Date() : null);
+	let fetchedAt = $state(new Date());
 	let daysBefore = $state(500);
 	let daysAfter = $state(500);
 
@@ -29,7 +30,7 @@
 	let minutesUntilHalving = $derived(blocksUntilHalving * AVG_BLOCK_MINUTES);
 
 	let halvingDate = $derived(
-		new Date(now.getTime() + minutesUntilHalving * MS_PER_MINUTE)
+		new Date(fetchedAt.getTime() + minutesUntilHalving * MS_PER_MINUTE)
 	);
 
 	let buyDate = $derived(
@@ -95,7 +96,8 @@
 			const res = await fetch('https://mempool.space/api/blocks/tip/height');
 			if (!res.ok) throw new Error(`HTTP ${res.status}`);
 			blockHeight = await res.json();
-			lastUpdated = new Date();
+			fetchedAt = new Date();
+			lastUpdated = fetchedAt;
 		} catch (err) {
 			blockError = err instanceof Error ? err.message : 'Unknown error';
 		} finally {
@@ -135,14 +137,16 @@
 	}
 
 	// Timeline progress (0-100)
-	let timelineProgress = $derived(() => {
-		const start = buyDate.getTime();
-		const end = sellDate.getTime();
-		const current = now.getTime();
-		if (current < start) return 0;
-		if (current > end) return 100;
-		return ((current - start) / (end - start)) * 100;
-	});
+	let timelineProgress = $derived(
+		(() => {
+			const start = buyDate.getTime();
+			const end = sellDate.getTime();
+			const current = now.getTime();
+			if (current < start) return 0;
+			if (current > end) return 100;
+			return ((current - start) / (end - start)) * 100;
+		})()
+	);
 
 	// ─── Ticker data ─────────────────────────────────────────────────────────────
 	const tickerItems = [
@@ -647,7 +651,7 @@
 				<div class="h-1 bg-gray-800 rounded-full mb-0">
 					<div
 						class="h-full rounded-full transition-all duration-1000"
-						style="width: {Math.min(100, Math.max(0, timelineProgress()))}%;
+						style="width: {Math.min(100, Math.max(0, timelineProgress))}%;
 							background: linear-gradient(90deg, #00ff88, #f7931a, #ff2d7e);"
 					></div>
 				</div>
